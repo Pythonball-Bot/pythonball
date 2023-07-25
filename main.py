@@ -60,10 +60,15 @@ async def on_message(msg : discord.Message):
 
 @command
 async def echo(msg : discord.Message, piped, args):
-    message = " ".join(args)
+    channel = msg.channel
+    index = 0
+    if args[0].startswith("<#"):
+        index = 1
+        channel = await bot.fetch_channel(args[0][2:-1])
+    message = " ".join(args[index:])
     if piped is not None:
         message = piped
-    await msg.channel.send(message)
+    await channel.send(message)
     
 @command
 async def ask(msg : discord.Message, piped, args):
