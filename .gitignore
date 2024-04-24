@@ -1,5 +1,9 @@
 # THOU SHALL NOT STEAL MY TOKEN
+SECRET/
 token
+yt_token
+
+tmp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
