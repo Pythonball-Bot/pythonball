@@ -46,7 +46,7 @@ save_db = lambda: open("db.json", "w", encoding="utf-8").write(json.dumps(databa
 
 
 owner = 663186731725488138
-subowners = [993927156142981240]
+subowners = [993927156142981240, 993927897477828790]
 
 
 afkMessages = []
@@ -259,11 +259,10 @@ async def echo(msg : discord.Message, piped, args):
     if args[0].startswith("<#"):
         index = 1
         channel = await bot.fetch_channel(args[0][2:-1])
-    message = " ".join(args[index:])
-    if piped is not None:
-        message = piped
+    if piped is not None: message = piped
+    else: message = " ".join(args[index:])
     await channel.send(message)
-    
+
 @command
 async def ask(msg : discord.Message, piped, args):
     message = " ".join(args)
@@ -668,5 +667,11 @@ class fools:
         for i, edit in enumerate(edits[0:9]):
             message += f"\n{i}. **{msg.guild.get_member(int(edit[0])).name}** - {edit[1]} edits"
         await msg.channel.send(f"## top goofballs{message}")
+
+@command
+async def flag(msg: discord.Message, args, piped):
+    if len(args) < 1:
+        await msg.channel.send("you forgot the country silly")
+        return
 
 bot.run(open("SECRET/token").read())
