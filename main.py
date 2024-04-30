@@ -446,8 +446,8 @@ async def download(msg: discord.Message, piped, args):
         await msg.channel.send("ADD LINK ICANT BE BOTHERED TO POUT EFFORT INTO THIS")
         return
     video = YouTube(args[0])
-    if video.length > 60 * 8:
-        await msg.channel.send("8 minute video length limit why? cause its an arbitrary limit i set")
+    if video.length > 60 * 15:
+        await msg.channel.send("15 minute video length limit why? cause its an arbitrary limit i set")
         return
     async with msg.channel.typing():
         stream = video.streams.filter(progressive=True).first()
