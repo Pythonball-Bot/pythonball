@@ -1,6 +1,6 @@
 {
  "663186731725488138": {
-  "renicoins": 1000000,
+  "renicoins": 1000010,
   "foolsEdits": 106
  },
  "957851643091755038": {
@@ -14,7 +14,8 @@
   "renicoins": 0
  },
  "1107639849302904952": {
-  "renicoins": 0
+  "renicoins": 100,
+  "foolsEdits": 0
  },
  "993927156142981240": {
   "renicoins": 0,
@@ -41,7 +42,23 @@
   "foolsEdits": 7
  },
  "721054166771826750": {
-  "renicoins": 1000,
+  "renicoins": -100,
+  "foolsEdits": 0
+ },
+ "472289979570061323": {
+  "renicoins": 100,
+  "foolsEdits": 0
+ },
+ "940663027131359283": {
+  "renicoins": 10,
+  "foolsEdits": 0
+ },
+ "993927897477828790": {
+  "renicoins": 10,
+  "foolsEdits": 0
+ },
+ "820779104973357107": {
+  "renicoins": 0,
   "foolsEdits": 0
  }
 }
