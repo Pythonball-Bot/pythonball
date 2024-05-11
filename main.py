@@ -81,16 +81,6 @@ async def on_message(msg : discord.Message):
     if error:
         await msg.channel.send("That is not a command fool.")
 
-# @bot.event
-# async def on_reaction_add(reaction : discord.Reaction, user : discord.Member):
-#     server = user.guild.id
-#     server_check(server)
-#     if reaction.emoji in servers[str(server)]["boards"].keys():
-#         boar = servers[str(server)]["boards"][reaction.emoji]
-#         if reaction.count >= boar["count"]:
-#             if not reaction.message.id in boar["messages"]:
-#                 await add_to_board(boar, reaction.message, reaction.emoji)
-
 if __name__ == "__main__":
     for file in os.listdir("commands"):
         if not file.endswith(".py"): continue
