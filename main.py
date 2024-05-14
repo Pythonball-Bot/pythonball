@@ -60,15 +60,16 @@ async def on_message(msg : discord.Message):
             if cmd.lower() in groups:
                 cmd = f"{cmd}.{args[0].lower()}"
                 args.pop(0)
-            if not cmd in commands.cmds:
+            if not cmd in commands["functions"].keys():
                 error = True
                 break
             try:
-                for perm in commands.cmds[cmd.lower()]["permissions"]:
-                    if not perm(msg.author):
-                        await msg.channel.send(f"Missing required permission: {perm.__name__}")
-                        break
-                out = await commands.cmds[cmd.lower()]["function"](msg, out, args)
+                if cmd in commands["permissions"].keys():
+                    for perm in commands["permissions"][cmd]:
+                        if not perm(msg.author):
+                            await msg.channel.send(f"Missing required permission: {perm.__name__}")
+                            break
+                out = await commands["functions"][cmd](msg, out, args)
             except IndexError:
                 await msg.channel.send("Missing required paramters.")
                 await msg.add_reaction("🚫")
