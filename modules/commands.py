@@ -29,9 +29,11 @@ def command(func):
     return wrapper
 
 def perms(func, *args):
-    name = func.__qualname__.lower()
-    commands["permissions"][name] = args
-    return func
+    def decorator(func):
+        name = func.__qualname__.lower()
+        commands["permissions"][name] = args
+        return func
+    return decorator
 
 def group(clas):
     groups.append(clas.__name__.lower())
