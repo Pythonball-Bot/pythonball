@@ -1,8 +1,11 @@
-from main import *
+from main import bot, afkMessages
+from modules.commands import *
+import modules.helpers as helpers
 import discord
 import random
 from pytube import YouTube
 from moviepy import editor
+import os
 
 @command
 async def echo(msg : discord.Message, piped, args):
@@ -26,7 +29,7 @@ async def ask(msg : discord.Message, piped, args):
 @command
 async def cwd(msg: discord.Message, piped, args):
     async with msg.channel.typing():
-        emoji = await guild_emoji(msg.guild)
+        emoji = await helpers.guild_emoji(msg.guild)
 
         await msg.channel.send(
 f"""Channel: {msg.channel.mention} : {msg.channel.id}
@@ -127,3 +130,15 @@ def parse_dice_query(query):
     else: hit_value = int(current)
 
     return sides, dice_count, hit_criteria, hit_value
+
+@group
+class dev:
+    # @perms(permissions.is_owner)
+    async def guilds(msg: discord.Message, piped, args):
+        for guild in bot.guilds:
+            async with msg.channel.typing():
+                emoji = await helpers.guild_emoji(guild)
+
+                await msg.channel.send(f"<:{guild.id}:{emoji.id}> {guild.name} : {guild.id}")
+                
+                await bot.get_guild(717048644708073534).delete_emoji(emoji)
