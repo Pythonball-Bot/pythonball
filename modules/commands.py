@@ -24,11 +24,11 @@ def command(func):
     name = func.__qualname__.lower()
     print(f"Registered command {name}")
     commands["functions"][name] = func
-    def wrapper(msg, piped, args, **kwargs):
-        asyncio.run(func(msg, piped, args, **kwargs))
+    def wrapper(*args):
+        asyncio.run(func(args))
     return wrapper
 
-def perms(func, *args):
+def perms(*args):
     def decorator(func):
         name = func.__qualname__.lower()
         commands["permissions"][name] = args

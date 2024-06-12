@@ -3,30 +3,28 @@ from modules.commands import *
 import modules.data as data
 import discord
 import datetime
+import time
 import re
 
 @group
 class board:
-    async def add(msg: discord.Message, piped, args):
-        if not msg.author.guild_permissions.administrator: return
-        await msg.channel.send("What is the emoji for this board?")
-        emoji = (await bot.wait_for("message", check=lambda m: m.channel == msg.channel and m.author == msg.author)).content
-        if(len(emoji) > 1):
-            await msg.channel.send("Either you forgot a space or you sent a custom emoji. Custom emoji boards aren't supported yet, until they are you have to use built in emojis.")
-            return
-        
-        await msg.channel.send("What channel should this board's messages be sent to?")
-        channel = (await bot.wait_for("message", check=lambda m: m.channel == msg.channel and m.author == msg.author)).content
+    @perms(permissions.is_admin)
+    async def add(bot: discord.Client, msg: discord.Message, piped, args):
+        if len(args) < 4: 
+            await msg.channel.send(f"expected 4 arguments, only got {len(args)}")
 
-        await msg.channel.send("What board type is it?\n**super** : Every member can put any message on the board with one react, but only every <n> hours\n**threshold** : A message goes to the board if it gets <n> total reactions")
-        type = (await bot.wait_for("message", check=lambda m: m.channel == msg.channel and m.author == msg.author)).content
-
-        await msg.channel.send("How many hours is the super react cooldown?" if type == "super" else "How many reacts does a message need?")
-        count = int((await bot.wait_for("message", check=lambda m: m.channel == msg.channel and m.author == msg.author)).content)
+        emoji = args[0]
+        channel = args[1]
+        type = args[2]
+        if type not in ["super", "threshold"]:
+            await msg.channel.send("not a valid board type. valid options are `super` and `threshold`")
+        count = args[3]
 
         index = len(data.servers.read(msg.guild, "boards", {}).keys())
-        if type == "super": data.servers.write(msg.guild, f"boards.{index}", {"type": "super", "channel": int(channel[2:-1]), "count": count, "lastReactions": {}, "emoji": emoji})
-        else: data.servers.write(msg.guild, f"boards.{index}", {"type": "threshold", "channel": int(channel[2:-1]), "count": count, "emoji": emoji})
+        if type == "super":
+            data.servers.write(msg.guild, f"boards.{index}", {"type": "super", "channel": int(channel[2:-1]), "count": int(count), "lastReactions": {}, "emoji": emoji, "messages": []})
+        else:
+            data.servers.write(msg.guild, f"boards.{index}", {"type": "threshold", "channel": int(channel[2:-1]), "count": int(count), "emoji": emoji, "messages": []})
         await msg.channel.send(f"Board created!")
 
     # async def force(msg: discord.Message, piped, args):
@@ -54,7 +52,7 @@ class board:
     #     await msg.channel.send(f"Added the messgage to the {emoji} board.")
 
 
-async def add_to_board(index, message):
+async def add_to_board(bot, index, message):
     if type(message) == discord.MessageReference:
         message = await (bot.get_guild(message.guild_id).get_channel(message.channel_id)).fetch_message(message.message_id)
 
@@ -76,21 +74,21 @@ async def add_to_board(index, message):
         embed.set_footer(text = f"+ {number} more attachment{'s' if number > 1 else ''}" if number > 0 else None)
         await (await bot.fetch_channel(boar["channel"])).send(f"{boar['emoji']} {message.jump_url}", embed = embed)
 
-@bot.event
-async def on_reaction_add(reaction : discord.Reaction, user : discord.Member):
-    server = user.guild.id
-    for i, boar in enumerate(data.servers.read(reaction.message.guild, "boards", {})):
-        if reaction.emoji != boar["emoji"]: continue
+async def board_check(bot, reaction, user):
+    for i, boar in data.servers.read(reaction.message.guild, "boards", {}).items():
+        if str(reaction.emoji) != boar["emoji"]: continue
         if boar["type"] == "super":
-            if str(user.id) not in boar["lastReactions"]: lastReaction = 0
-            else: lastReaction = datetime.datetime.fromisoformat(
-                boar["lastReactions"][str(user.id)])
-            secondsSinceReact = (datetime.datetime.now() - lastReaction).seconds
-            if secondsSinceReact < boar["count"] * 60 * 60:
+            secondsSinceReact = boar["count"] * 60 * 60 + 1
+            if str(user.id) in boar["lastReactions"]:
+                lastReaction = datetime.datetime.fromisoformat(boar["lastReactions"][str(user.id)])
+                secondsSinceReact = (datetime.datetime.now() - lastReaction).total_seconds()
+            if secondsSinceReact > boar["count"] * 60 * 60:
                 if not reaction.message.id in boar["messages"]:
-                    await add_to_board(i, reaction.message, reaction.emoji)
+                    await add_to_board(bot, i, reaction.message)
                     data.servers.write(reaction.message.guild, f"boards.{i}.lastReactions.{str(user.id)}", datetime.datetime.now().isoformat())
+            else:
+                await reaction.message.channel.send(f"{user.mention} your super react will be ready at <t:{int(time.mktime((lastReaction + datetime.timedelta(hours=boar['count'])).timetuple()))}:f>")
         if boar["type"] == "threshold":
             if reaction.count >= boar["count"]:
                 if not reaction.message.id in boar["messages"]:
-                    await add_to_board(i, reaction.message)
+                    await add_to_board(bot, i, reaction.message)

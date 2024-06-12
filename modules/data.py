@@ -16,9 +16,11 @@ class servers:
         if type(guild) is not int:
             guild = guild.id
         segments = query.split(".")
-        currentData = serverData[guild]
-        for i, segment in enumerate(segments):
-            if segment not in currentData.values():
+        if str(guild) not in serverData.keys():
+            serverData[str(guild)] = {}
+        currentData = serverData[str(guild)]
+        for segment in segments:
+            if segment not in currentData.keys():
                 return default
             else: currentData = currentData[segment]
         return currentData
@@ -28,17 +30,21 @@ class servers:
         if type(guild) is not int:
             guild = guild.id
         segments = query.split(".")
-        currentData = serverData[guild]
+        if str(guild) not in serverData.keys():
+            serverData[str(guild)] = {}
+        currentData = serverData[str(guild)]
         for i, segment in enumerate(segments):
-            if segment not in currentData.values():
-                if i < len(segments) - 1: currentData[segment] = {}
+            if segment not in currentData.keys():
+                if i < len(segments) - 1:
+                    currentData[segment] = {}
+                    currentData = currentData[segment]
                 else:
                     currentData[segment] = newData
-                    return
+                    break
             else:
-                if i < len(segments) - 1:
+                if i == len(segments) - 1:
                     currentData[segment] = newData
-                    return
+                    break
                 else: currentData = currentData[segment]
         save_servers()
 
@@ -55,11 +61,13 @@ open("data/users-backup.json", "w", encoding="utf-8").write(json.dumps(userData,
 
 class users:
     @staticmethod
-    def read(guild, query, default = None):
-        if type(guild) is not int:
-            guild = guild.id
+    def read(user, query, default = None):
+        if type(user) is not int:
+            user = user.id
         segments = query.split(".")
-        currentData = userData[guild]
+        if str(user) not in userData.keys():
+            serverData[str(user)] = {}
+        currentData = userData[str(user)]
         for i, segment in enumerate(segments):
             if segment not in currentData.values():
                 return default
@@ -67,11 +75,13 @@ class users:
         return currentData
     
     @staticmethod
-    def write(guild, query, newData):
-        if type(guild) is not int:
-            guild = guild.id
+    def write(user, query, newData):
+        if type(user) is not int:
+            user = user.id
         segments = query.split(".")
-        currentData = userData[guild]
+        if str(user) not in userData.keys():
+            serverData[str(user)] = {}
+        currentData = userData[str(user)]
         for i, segment in enumerate(segments):
             if segment not in currentData.values():
                 if i < len(segments) - 1: currentData[segment] = {}

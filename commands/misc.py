@@ -8,7 +8,7 @@ from moviepy import editor
 import os
 
 @command
-async def echo(msg : discord.Message, piped, args):
+async def echo(bot: discord.Client, msg : discord.Message, piped, args):
     channel = msg.channel
     index = 0
     if args[0].startswith("<#"):
@@ -19,7 +19,7 @@ async def echo(msg : discord.Message, piped, args):
     await channel.send(message)
 
 @command
-async def ask(msg : discord.Message, piped, args):
+async def ask(bot: discord.Client, msg : discord.Message, piped, args):
     message = " ".join(args)
     if piped is not None:
         message = piped
@@ -27,7 +27,7 @@ async def ask(msg : discord.Message, piped, args):
     return (await bot.wait_for("message", check=lambda m: m.channel == msg.channel)).content
 
 @command
-async def cwd(msg: discord.Message, piped, args):
+async def cwd(bot: discord.Client, msg: discord.Message, piped, args):
     async with msg.channel.typing():
         emoji = await helpers.guild_emoji(msg.guild)
 
@@ -40,13 +40,13 @@ Message: {msg.jump_url} : {msg.id}""")
         await bot.get_guild(717048644708073534).delete_emoji(emoji)
 
 @command
-async def download(msg: discord.Message, piped, args):
+async def download(bot: discord.Client, msg: discord.Message, piped, args):
     if len(args) == 0:
         await msg.channel.send("ADD LINK ICANT BE BOTHERED TO POUT EFFORT INTO THIS")
         return
     video = YouTube(args[0])
-    if video.length > 60 * 15:
-        await msg.channel.send("15 minute video length limit why? cause its an arbitrary limit i set")
+    if video.length > 60 * 32:
+        await msg.channel.send("32 minute video length limit why? cause its an arbitrary limit i set")
         return
     async with msg.channel.typing():
         stream = video.streams.filter(progressive=True).first()
@@ -55,11 +55,11 @@ async def download(msg: discord.Message, piped, args):
         video = editor.VideoFileClip(f"tmp/{path}")
         video.audio.write_audiofile(f"tmp/{path}.mp3")
         await msg.channel.send(file=discord.File(open(f"tmp/{path}.mp3", "rb")))
-        os.remove(f"tmp/{path}")
-        os.remove(f"tmp/{path}.mp3")
+        # os.remove(f"tmp/{path}")
+        # os.remove(f"tmp/{path}.mp3")
 
 @command
-async def afk(msg: discord.Message, piped, args):
+async def afk(bot: discord.Client, msg: discord.Message, piped, args):
     afkMessage = f"**{msg.author.name}** is afk"
     if len(args) > 0:
         afkMessage += f": {' '.join(args)}"
@@ -67,7 +67,7 @@ async def afk(msg: discord.Message, piped, args):
     await msg.channel.send(f"bye bye")
 
 @command
-async def roll(msg: discord.Message, piped, args):
+async def roll(bot: discord.Client, msg: discord.Message, piped, args):
     if len(args) == 0:
         await msg.channel.send("please provide a query for the dice")
         return
@@ -134,7 +134,7 @@ def parse_dice_query(query):
 @group
 class dev:
     # @perms(permissions.is_owner)
-    async def guilds(msg: discord.Message, piped, args):
+    async def guilds(bot: discord.Client, msg: discord.Message, piped, args):
         for guild in bot.guilds:
             async with msg.channel.typing():
                 emoji = await helpers.guild_emoji(guild)

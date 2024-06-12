@@ -1,20 +1,19 @@
-from main import bot
 from modules.commands import *
-import discord;
+import discord
 import modules.data as data
 import modules.helpers as helpers
 
 @group
 class coins:
-    # @perms(permissions.is_owner)
-    async def set(msg: discord.Message, piped, args):
+    @perms(permissions.is_admin)
+    async def set(bot: discord.Client, msg: discord.Message, piped, args):
         if len(args) == 0:
             await msg.channel.send("Please provide a user mention or id.")
             return
         if len(args) == 1:
             await msg.channel.send("Please provide a coin amount.")
             return
-        user = helpers.parse_user(args[0])
+        user = helpers.parse_user(bot, args[0])
         number = int(args[1])
 
         if user is None:
@@ -26,15 +25,15 @@ class coins:
         coinName = data.servers.read(msg.guild, "coins.name", "coin")
         await msg.channel.send(f"Set **{user.display_name}**'s {coinName} balance to {number}")
 
-    # @perms(permissions.is_admin)
-    async def add(msg: discord.Message, piped, args):
+    @perms(permissions.is_admin)
+    async def add(bot: discord.Client, msg: discord.Message, piped, args):
         if len(args) == 0:
             await msg.channel.send("Please provide a user mention or id.")
             return
         if len(args) == 1:
             await msg.channel.send("Please provide a renicoin amount.")
             return
-        user = helpers.parse_user(args[0])
+        user = helpers.parse_user(bot, args[0])
 
         if user is None:
             await msg.channel.send("That is not a valid user mention or id.")
@@ -46,12 +45,11 @@ class coins:
         coinName = data.servers.read(msg.guild, "coins.name", "coin")
         await msg.channel.send(f"Set **{user.display_name}**'s {coinName} balance to {number}")
 
-    async def get(msg: discord.Message, piped, args):
+    async def get(bot: discord.Client, msg: discord.Message, piped, args):
         if len(args) == 0:
             await msg.channel.send("Please provide a user mention or id.")
             return
-        user = helpers.parse_user(args[0])
-        print(args[0])
+        user = helpers.parse_user(bot, args[0])
 
         if user is None:
             await msg.channel.send("That is not a valid user mention or id.")

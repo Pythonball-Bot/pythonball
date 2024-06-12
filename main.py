@@ -2,8 +2,9 @@ import discord
 import asyncio
 import os
 from PIL import Image
-import modules.data
+import modules.data as data
 from modules.commands import commands, groups
+import commands.board as board
 import importlib
 
 os.system("clear")
@@ -64,12 +65,13 @@ async def on_message(msg : discord.Message):
                 error = True
                 break
             try:
+                canRun = True
                 if cmd in commands["permissions"].keys():
                     for perm in commands["permissions"][cmd]:
                         if not perm(msg.author):
                             await msg.channel.send(f"Missing required permission: {perm.__name__}")
-                            break
-                out = await commands["functions"][cmd](msg, out, args)
+                            canRun = False
+                if canRun: out = await commands["functions"][cmd](bot, msg, out, args)
             except IndexError:
                 await msg.channel.send("Missing required paramters.")
                 await msg.add_reaction("🚫")
@@ -78,6 +80,14 @@ async def on_message(msg : discord.Message):
 
     if error:
         await msg.channel.send("That is not a command fool.")
+
+@bot.event
+async def on_raw_reaction_add(event : discord.RawReactionActionEvent):
+    message = await (await bot.fetch_channel(event.channel_id)).fetch_message(event.message_id)
+    user = await bot.fetch_user(event.user_id)
+    for reaction in message.reactions:
+        if reaction.emoji == event.emoji:
+            await board.board_check(bot, reaction, user)
 
 if __name__ == "__main__":
     for file in os.listdir("commands"):

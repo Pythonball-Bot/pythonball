@@ -1,8 +1,7 @@
 from PIL import Image
 import discord
-from main import bot
 
-async def guild_emoji(guild):
+async def guild_emoji(bot, guild):
     await guild.icon.save(f"tmp/{guild.id}.png")
     guild_icon = Image.open(f"tmp/{guild.id}.png").convert("RGB")
     mask = Image.open("assets/circle-mask.png").convert("L")
@@ -25,7 +24,7 @@ async def round_icon(icon):
     guild_icon.save(f"tmp/{hashed}.png")
     return discord.File(open(f"tmp/{hashed}.png", "rb").read())
 
-def parse_user(text):
+def parse_user(bot, text):
     user = None
     if text.startswith("<@"):
         user = bot.get_user(int(text[2:-1]))
